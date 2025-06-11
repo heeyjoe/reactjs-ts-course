@@ -1,13 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 
 function App() {
   const inputRef = useRef<HTMLInputElement>(null)
   const firstRender = useRef(true)
   const [input, setInput] = useState()
-  const [editTask, setEditTask] = useState({
-    enabled: false,
-    task: ''
-  })
+  const [editTask, setEditTask] = useState({ enabled: false, task: ''  })
   const [tasks, setTasks] = useState<string[]>([]);
   
   useEffect(() => {
@@ -34,7 +31,7 @@ function App() {
     setInput("")
   }
 
-  function handleRegister(){
+  const handleRegister = useCallback(() => {
     if(!input){
       alert('Preencha o nome da sua tarefa')
       return;
@@ -46,8 +43,9 @@ function App() {
 
     setTasks(tarefas => [...tarefas, input])
     setInput("")
-  }
-
+    console.log('Renderizado')
+  }, [input, tasks])
+  
   function handleDelete(item: string){
     const removeTasks = tasks.filter( task => task !== item)
     setTasks(removeTasks)
@@ -59,6 +57,10 @@ function App() {
     setEditTask({enabled: true, task: item})
   }
   
+  const totalTarefas = useMemo( () => {
+    return tasks.length
+  }, [tasks])
+
   return (
     <div>
       <h1>Lista de tarefas</h1>
@@ -71,6 +73,8 @@ function App() {
         <button onClick={handleRegister}>
           {editTask.enabled ? 'Editar Tarefa' : 'Adicionar Tarefa'}</button>
       <hr />
+      <strong>Você tem {totalTarefas} tarefas</strong>
+      <br /><br />
       {tasks.map( (item, index) => (
         <section key={item}>
           <span>{item}</span>
